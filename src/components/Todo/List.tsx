@@ -10,33 +10,59 @@ import {
   IonRow,
 } from "@ionic/react";
 import { pencilOutline, trashOutline } from "ionicons/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosIntance from "../../lib/axiosInstance";
 
-const mockTodos = [
-  {
-    id: 1,
-    title: "My Todo App",
-    description: "This is my todo",
-  },
-  {
-    id: 2,
-    title: "My 2nd Todo App",
-    description: "This is my 2nd todo description",
-  },
-];
+export type Todo = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: Date;
+  deadline: Date;
+};
 
 export const TodoList: React.FC = () => {
   const [openActionSheet, setOpenActionSheet] = useState(false);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [selectedId, setSelectedId] = useState("");
+
+  const fetchTodos = () => {
+    axiosIntance
+      .get("/todos")
+      .then((res) => {
+        setTodos(res.data);
+      })
+      .catch(console.error);
+  };
+
+  const deleteTodo = (id: string) => {
+    axiosIntance
+      .request({
+        url: `/todos/${id}`,
+        method: "DELETE",
+      })
+      .then((res) => {
+        fetchTodos();
+      })
+      .catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
   return (
     <IonGrid className="ion-padding">
       <IonRow>
-        {mockTodos.map((todo) => {
+        {todos.map((todo) => {
           return (
             <IonCol size="12" className="ion-margin-bottom">
               <IonCard
                 className="ion-no-margin ion-activatable"
-                onClick={() => setOpenActionSheet(true)}
+                onClick={() => {
+                  setOpenActionSheet(true);
+                  setSelectedId(todo.id);
+                }}
               >
                 <IonRippleEffect></IonRippleEffect>
                 <IonCardHeader>
@@ -58,6 +84,9 @@ export const TodoList: React.FC = () => {
             icon: trashOutline,
             data: {
               action: "delete",
+            },
+            handler: () => {
+              deleteTodo(selectedId);
             },
           },
           {

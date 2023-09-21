@@ -1,8 +1,11 @@
 import { IonAlert } from "@ionic/react";
+import { type Todo } from "./List";
+import { useState } from "react";
 
 type TodoFormTypes = {
   isOpen: boolean;
   isEdit?: boolean;
+  data?: Todo;
   onDidDismiss: () => void;
 };
 
@@ -15,9 +18,11 @@ export const TodoFOrm: React.FC<TodoFormTypes> = (props) => {
       subHeader={props.isEdit ? "Edit Todo" : "Create New Todo"}
       inputs={[
         {
+          name: "title",
           placeholder: "Title",
         },
         {
+          name: "description",
           type: "textarea",
           placeholder: "Description",
         },
@@ -30,6 +35,9 @@ export const TodoFOrm: React.FC<TodoFormTypes> = (props) => {
         {
           text: "Save",
           role: "confirm",
+          handler: (data) => {
+            console.log(data);
+          },
         },
       ]}
     ></IonAlert>
